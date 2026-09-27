@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#101214">
+  <title>2048 — Tile Merge Puzzle</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="app-shell">
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark">2</span><span>2048</span></div>
+      <div class="top-actions"><button class="text-button" id="rules-button">How to play</button><button class="icon-button" id="sound-button" aria-label="Toggle sound">◒</button></div>
+    </header>
+
+    <section class="hero">
+      <div>
+        <p class="eyebrow">SINGLE-PLAYER PUZZLE · FOUR BOARD SIZES · 5 MIN</p>
+        <h1>Slide.<br><em>Merge.</em> Double.</h1>
+        <p class="hero-copy">Push the whole board in one direction and equal tiles fuse into their double. Bank your big tile in a corner and keep the board tidy — on 3×3 through 6×6, against the clock of a filling grid.</p>
+      </div>
+      <div class="hero-badge"><span class="badge-dot"></span><span id="mode-badge">4×4 · TARGET 2048</span></div>
+    </section>
+
+    <section class="game-layout">
+      <aside class="score-panel panel">
+        <div class="panel-label">SCOREBOARD</div>
+        <div class="player-card active">
+          <div class="player-title"><span class="marble score-marble"></span><span>SCORE</span><span class="turn-chip hidden" id="gain-chip">+0</span></div>
+          <div class="score-row"><strong id="score">0</strong><span id="score-note">merged value</span></div>
+          <div class="mini-groups" id="score-bar"></div>
+        </div>
+        <div class="player-card" id="best-card">
+          <div class="player-title"><span class="marble best-marble"></span><span>BEST</span><span class="turn-chip hidden" id="record-chip">RECORD</span></div>
+          <div class="score-row"><strong id="best-score">0</strong><span id="best-note">this board size</span></div>
+          <div class="mini-groups" id="best-bar"></div>
+        </div>
+        <div class="setup-block">
+          <div class="panel-label">MATCH SETUP</div>
+          <div class="setup-field"><label for="size-select">BOARD SIZE</label><select id="size-select"><option value="3">3 × 3 · Tight</option><option value="4" selected>4 × 4 · Classic</option><option value="5">5 × 5 · Roomy</option><option value="6">6 × 6 · Marathon</option></select></div>
+          <div class="setup-field"><label for="target-select">TARGET TILE</label><select id="target-select"></select></div>
+          <div class="setup-field"><label for="level-select">AI STRENGTH</label><select id="level-select"><option value="expert">Expert · deepest search</option><option value="standard" selected>Standard · fixed depth</option><option value="casual">Casual · greedy</option></select></div>
+          <div class="setup-field"><label for="speed-select">AUTOPLAY SPEED</label><select id="speed-select"><option value="320">Slow</option><option value="140" selected>Normal</option><option value="40">Fast</option></select></div>
+        </div>
+      </aside>
+
+      <section class="board-wrap">
+        <div class="board-heading">
+          <div><span class="panel-label">GRID <span id="grid-label">4×4</span></span><h2 id="status-title">Slide to begin</h2></div>
+          <span class="move-counter" id="move-counter">MOVE 00</span>
+        </div>
+        <div class="board-frame"><div class="board" id="board" role="grid" aria-label="2048 game board"><div class="grid-cells" id="grid-cells"></div><div class="tile-layer" id="tile-layer"></div></div></div>
+        <div class="board-hint" id="board-hint">Arrow keys, WASD or swipe to play. Space plays one AI move, G hands the board over.</div>
+      </section>
+
+      <aside class="action-panel panel">
+        <div class="panel-label">MATCH CONTROL</div>
+        <div class="control-stat"><span>LARGEST TILE</span><strong id="largest-tile">2</strong></div>
+        <div class="control-stat"><span>FREE CELLS</span><strong id="free-cells">14 / 16</strong></div>
+        <div class="control-stat"><span>AI SEARCH</span><strong id="ai-stat">IDLE</strong></div>
+        <div class="action-buttons">
+          <button class="primary-button" id="new-game">New game <span>↗</span></button>
+          <button class="secondary-button" id="undo-button" disabled>Undo move</button>
+          <button class="secondary-button" id="hint-button">Suggest a move</button>
+          <button class="secondary-button" id="autoplay-button">Autoplay · AI takes over</button>
+          <button class="secondary-button" id="step-button">Play one AI move</button>
+          <button class="secondary-button" id="pause-button" hidden>Pause</button>
+        </div>
+        <div class="tip"><span class="tip-icon">✦</span><p>Hand the board to the AI at any time — an arrow key takes it straight back. Space plays a single AI move when you want a nudge rather than a takeover.</p></div>
+      </aside>
+    </section>
+
+    <footer class="footer"><span>© 2026 2048 DIGITAL</span><span>CLASSIC RULES · CIRULLI'S TILE PUZZLE</span><span id="game-state">GAME IN PROGRESS</span></footer>
+  </main>
+
+  <dialog id="rules-dialog"><button class="dialog-close" id="close-rules" aria-label="Close">×</button><p class="eyebrow">THE CLASSIC RULES</p><h2>How to play 2048</h2><div class="rules-grid">
+    <div><span>01</span><h3>One push, whole board</h3><p>Choose up, down, left or right and every tile slides as far as it can in that direction. The board starts with two tiles.</p></div>
+    <div><span>02</span><h3>Equal tiles fuse</h3><p>Two tiles of the same value that run into each other merge into one tile of double the value, and that value is added to your score.</p></div>
+    <div><span>03</span><h3>One merge per tile</h3><p>A tile created by a merge cannot merge again in the same move, and the pair nearest the wall you pushed toward always merges first.</p></div>
+    <div><span>04</span><h3>Every move costs a cell</h3><p>A direction is only legal if something actually moves. After each legal move a new tile appears in a random empty cell — a 2 nine times out of ten, otherwise a 4.</p></div>
+    <div><span>05</span><h3>Reach the target</h3><p>Build the target tile to win — 2048 on the classic 4×4, and 256, 4096 or 8192 on the other grids. You can keep playing for a bigger score afterwards.</p></div>
+    <div><span>06</span><h3>The board fills up</h3><p>The game ends when the grid is full and no two orthogonal neighbours match. Keep your largest tile pinned in a corner and the rows sorted around it.</p></div>
+  </div></dialog>
+
+  <dialog id="result-dialog"><button class="dialog-close" id="result-close" aria-label="Close">×</button><p class="eyebrow" id="result-eyebrow">GAME OVER · NO MOVES REMAIN</p><h2 id="result-title">Board locked</h2><p class="result-detail" id="result-detail"></p><div class="result-groups"><div><span class="marble score-marble"></span><div><strong id="result-score">0</strong><em>FINAL SCORE</em></div></div><div><span class="marble best-marble"></span><div><strong id="result-largest">0</strong><em id="result-largest-note">LARGEST TILE</em></div></div></div><div class="result-actions"><button class="primary-button" id="result-new">New game <span>↗</span></button><button class="secondary-button" id="result-continue" hidden>Keep playing</button></div></dialog>
+
+  <div class="toast" id="toast" role="status"></div>
+  <script src="engine.js"></script>
+  <script src="ai.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
